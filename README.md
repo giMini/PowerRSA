@@ -7,6 +7,9 @@ To generate the Modulus, the private key and the public key, enter this command
 
 .\PowerRSA.ps1 -Method GenKeys 
 
+# Generate a 2048 key
+
+.\PowerRSA.ps1 -Method GenKeys -KeyType 2048-bit
 
 # Encrypt data
 
