@@ -53,13 +53,33 @@ function Get-RandomByte
 {
     Param (
         [Parameter(Mandatory = $True)]
-        [UInt32] $Length
+        [UInt32] $Length,
+        [Parameter(Mandatory = $True)]
+        [ValidateSet('GetRandom', 'CryptoRNG')]
+        [String] $Method,
+        [Parameter(Mandatory = $False)]
+        [Int32] $Minimum
     )
- 
+
     $RandomBytes = New-Object Byte[]($Length)
-    $RNG = [Security.Cryptography.RNGCryptoServiceProvider]::Create()
-    $RNG.GetBytes($RandomBytes)
-             
+ 
+    if(!$Minimum) {
+        $Minimum = 0
+    }
+
+    switch ($Method)
+    {
+        'GetRandom' {
+            foreach ($i in 0..($Length - 1))
+            {
+                $RandomBytes[$i] = Get-Random -Minimum 0 -Maximum 256
+            }
+         }
+         'CryptoRNG' {
+             $RNG = [Security.Cryptography.RNGCryptoServiceProvider]::Create()
+             $RNG.GetBytes($RandomBytes)
+         }
+    }
     $RandomBytes
 }
 
@@ -85,15 +105,23 @@ function Is-PrimeRabbinMiller {
         $s++;
     }
  
-    [Byte[]] $bytes = $source.ToByteArray().LongLength
+    if ($source.ToByteArray().LongLength -gt 255) {
+        $sourceLength = 255
+    }
+    else {
+        $sourceLength = $source.ToByteArray().LongLength
+    }
+
+    [Byte[]] $bytes = $sourceLength 
 
     $rngProv = [System.Security.Cryptography.RNGCryptoServiceProvider]::Create()
+    
     [BigInt]$a = 0
-    for ($i = 0; $i -lt $Iterate; $i++) {
+    for ($i = 0; $i -lt $Iterate; $i++) {          
         do {
             $rngProv.GetBytes($bytes)
-            $a = [BigInt]$bytes
-        } while (($a -lt 2) -or ($a -ge ($source - 2)))
+            $a = [BigInt]$bytes            
+        } while (($a -lt 2) -or ($a -ge ($source - 2)))                              
          
         [BigInt]$x = ([BigInt]::ModPow($a,$d,$source))
         if ($x -eq 1 -or ($x -eq $source-1)) {
@@ -122,8 +150,8 @@ function Get-RandomPrimeNumber {
     
     $prime = $false 
     for(!$prime) {
-        $CryptoRNGBytes = Get-RandomByte -Length $Length
-        $generated = ""
+        $CryptoRNGBytes = Get-RandomByte -Method CryptoRNG -Length $Length
+        $generated = ""        
         foreach($cryptoRNGByte in $CryptoRNGBytes) {
             $generated += $cryptoRNGByte
         }
@@ -201,6 +229,7 @@ if ($gen -eq 1) {
     Switch ($KeyType) {
         '1024-bit' {$Length = 0x40}
         '2048-bit' {$Length = 0x80}        
+        '4096-bit' {$Length = 0x100}        
         default {$Length = 0x80}
     }
 
