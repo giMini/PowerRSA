@@ -8,7 +8,9 @@ Param
         [Parameter(Position=2,mandatory=$false)]    
         [String] $Exponent,
         [Parameter(Position=3,mandatory=$false)]    
-        [String] $Modulus
+        [String] $Modulus,
+        [Parameter(Position=4,mandatory=$false)]    
+        [String] $KeyType
     )
 function Get-GCD {
 
@@ -51,8 +53,7 @@ function Get-RandomByte
 {
     Param (
         [Parameter(Mandatory = $True)]
-        [UInt32]
-        $Length
+        [UInt32] $Length
     )
  
     $RandomBytes = New-Object Byte[]($Length)
@@ -116,9 +117,9 @@ function Is-PrimeRabbinMiller {
 function Get-RandomPrimeNumber {
     [CmdletBinding()]
     Param (
-        [BigInt] $Length            
+        [UInt32] $Length            
     ) 
-    $Length = 0x80
+    
     $prime = $false 
     for(!$prime) {
         $CryptoRNGBytes = Get-RandomByte -Length $Length
@@ -196,9 +197,16 @@ if ($gen -eq 1) {
     $streamWriterPublic = New-Object System.IO.StreamWriter $publicKeyFileName
     $streamWriterModulus = New-Object System.IO.StreamWriter $modulusFileName
     Write-Output "Keys generating..."   
-    
-    [BigInt]$p = Get-RandomPrimeNumber -Length 0x80   
-    [BigInt]$q = Get-RandomPrimeNumber -Length 0x80  
+    [UInt32]$Length = 0x80
+    Switch ($KeyType) {
+        '1024-bit' {$Length = 0x40}
+        '2048-bit' {$Length = 0x80}
+        #'4096-bit' {$Length = 0x100}
+        default {$Length = 0x80}
+    }
+
+    [BigInt]$p = Get-RandomPrimeNumber -Length $Length   
+    [BigInt]$q = Get-RandomPrimeNumber -Length $Length   
 
     if($q -ge $p) {    
         [BigInt]$temp = $p
