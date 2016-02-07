@@ -200,8 +200,7 @@ if ($gen -eq 1) {
     [UInt32]$Length = 0x80
     Switch ($KeyType) {
         '1024-bit' {$Length = 0x40}
-        '2048-bit' {$Length = 0x80}
-        #'4096-bit' {$Length = 0x100}
+        '2048-bit' {$Length = 0x80}        
         default {$Length = 0x80}
     }
 
