@@ -56,7 +56,7 @@ function Get-RandomByte
         [UInt32] $Length,
         [Parameter(Mandatory = $True)]
         [ValidateSet('GetRandom', 'CryptoRNG')]
-        [String] $Method,
+        [String] $MethodRand,
         [Parameter(Mandatory = $False)]
         [Int32] $Minimum
     )
@@ -67,7 +67,7 @@ function Get-RandomByte
         $Minimum = 0
     }
 
-    switch ($Method)
+    switch ($MethodRand)
     {
         'GetRandom' {
             foreach ($i in 0..($Length - 1))
@@ -287,7 +287,7 @@ if($encrypt -eq 1) {
                 $asciiCode = [int]$character[-0]	
 
                 # Create a random padding before encrypt data to avoid statistical attack on text
-                $CryptoRNGBytes = Get-RandomByte -Length 0x12
+                $CryptoRNGBytes = Get-RandomByte -Method CryptoRNG -Length 0x12
                 [string]$randomPadding = ""
                 foreach($c in $CryptoRNGBytes) {
                     $randomPadding += $c
