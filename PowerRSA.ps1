@@ -83,7 +83,7 @@ function Get-RandomByte
     $RandomBytes
 }
 
-function Is-PrimeRabbinMiller {
+function Is-PrimeRabinMiller {
 [CmdletBinding()]
         Param (
             [BigInt] $Source, 
