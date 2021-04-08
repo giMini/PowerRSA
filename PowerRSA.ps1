@@ -157,7 +157,7 @@ function Get-RandomPrimeNumber {
         }
 
         [BigInt]$generatedPrime = $generated
-        $prime = Is-PrimeRabbinMiller $generatedPrime 40
+        $prime = Is-PrimeRabinMiller $generatedPrime 40
         if($prime -eq $true) {
             Break
         }
